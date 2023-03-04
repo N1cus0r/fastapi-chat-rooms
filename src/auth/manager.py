@@ -5,7 +5,7 @@ from fastapi import Request, Depends
 from fastapi_users.db import ObjectIDIDMixin, BeanieUserDatabase
 from fastapi_users import BaseUserManager
 
-from config import APP_SECRET
+from src.config import APP_SECRET
 from .models import User, get_user_db
 
 

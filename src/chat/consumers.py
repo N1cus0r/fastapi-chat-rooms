@@ -1,7 +1,7 @@
 import json
 from bson import json_util
 
-from main import sio
+from src.main import sio
 from .models import Message
 
 

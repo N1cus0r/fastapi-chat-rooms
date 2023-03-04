@@ -1,24 +1,24 @@
 from fastapi import FastAPI
 from socketio import AsyncServer, ASGIApp, AsyncRedisManager
 
-from database import init_mongodb
-from config import REDIS_HOST_URL
+from src.database import init_mongodb
+from src.config import REDIS_HOST_URL
 
 app = FastAPI()
 
-import cors
+import src.cors
 
-from auth import router
-from rooms import router
+from src.auth import router
+from src.rooms import router
 
 redis_manager = AsyncRedisManager(url=REDIS_HOST_URL, write_only=False)
 sio = AsyncServer(
-    async_mode="asgi", cors_allowed_origins=cors.origins, client_manager=redis_manager
+    async_mode="asgi", cors_allowed_origins=src.cors.origins, client_manager=redis_manager
 )
 socket_app = ASGIApp(sio)
 app.mount("/", socket_app)
 
-import chat.consumers
+import src.chat.consumers
 
 
 @app.on_event("startup")

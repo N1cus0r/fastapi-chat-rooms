@@ -6,7 +6,7 @@ from fastapi_users.authentication import (
     CookieTransport,
 )
 
-from config import DEBUG
+from src.config import DEBUG
 from .models import User
 from .manager import get_user_manager
 

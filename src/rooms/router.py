@@ -4,12 +4,12 @@ from beanie.odm.operators.update.array import Push, Pull
 from beanie.operators import ElemMatch, In
 from beanie import PydanticObjectId
 
-from main import app
-from auth.instance import current_user
+from src.main import app
+from src.auth.instance import current_user
 from .schemas import UpdateRoom
 from .models import Room
-from auth.models import User
-from chat.models import Message
+from src.auth.models import User
+from src.chat.models import Message
 
 
 router = APIRouter(prefix="/rooms", tags=["Rooms"])

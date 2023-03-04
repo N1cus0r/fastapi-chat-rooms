@@ -1,4 +1,4 @@
-from main import app
+from src.main import app
 from .instance import fastapi_users, backend
 from .schemas import UserRead, UserCreate, UserUpdate
 

@@ -1,7 +1,7 @@
 from fastapi.middleware.cors import CORSMiddleware
 
-from config import CLIENT_HOST_URL
-from main import app
+from src.config import CLIENT_HOST_URL
+from src.main import app
 
 
 origins = [
