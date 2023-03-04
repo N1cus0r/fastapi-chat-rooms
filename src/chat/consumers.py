@@ -33,7 +33,7 @@ async def chat_message(sid, data):
         user_username=data.get("user_username"),
     ).insert()
 
-    data['_id'] = str(message.id)
+    data["_id"] = str(message.id)
     data["time_sent"] = str(message.time_sent)
 
     await sio.emit("chat_message", data, room=data["room_code"])
