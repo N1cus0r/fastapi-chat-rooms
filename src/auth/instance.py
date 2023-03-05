@@ -16,7 +16,7 @@ cookie_transport = CookieTransport(
     cookie_secure=True if DEBUG == "False" else False,
     cookie_samesite="none" if DEBUG == "False" else "lax",
     cookie_max_age=3600,
-    cookie_domain=COOKIE_DOMAIN
+    # cookie_domain=COOKIE_DOMAIN
 )
 
 
