@@ -6,7 +6,7 @@ from fastapi_users.authentication import (
     CookieTransport,
 )
 
-from src.config import DEBUG
+from src.config import DEBUG, COOKIE_DOMAIN
 from .models import User
 from .manager import get_user_manager
 
@@ -16,6 +16,7 @@ cookie_transport = CookieTransport(
     cookie_secure=True if DEBUG == "False" else False,
     cookie_samesite="none" if DEBUG == "False" else "lax",
     cookie_max_age=3600,
+    cookie_domain=COOKIE_DOMAIN
 )
 
 
