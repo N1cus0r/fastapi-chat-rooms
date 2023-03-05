@@ -5,7 +5,7 @@ from src.main import app
 
 
 origins = [
-    "http://127.0.0.1:3000",
+    CLIENT_HOST_URL,
 ]
 
 app.add_middleware(
