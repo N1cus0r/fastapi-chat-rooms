@@ -13,7 +13,9 @@ from src.rooms import router
 
 redis_manager = AsyncRedisManager(url=REDIS_HOST_URL, write_only=False)
 sio = AsyncServer(
-    async_mode="asgi", cors_allowed_origins=src.cors.origins, client_manager=redis_manager
+    async_mode="asgi",
+    cors_allowed_origins=src.cors.origins,
+    client_manager=redis_manager,
 )
 socket_app = ASGIApp(sio)
 app.mount("/", socket_app)

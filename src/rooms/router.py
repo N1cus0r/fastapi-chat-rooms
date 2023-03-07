@@ -1,7 +1,9 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
+from bson import ObjectId
 from beanie.odm.operators.update.array import Push, Pull
-from beanie.operators import ElemMatch, In
+from beanie.operators import In
 from beanie import PydanticObjectId
 
 from src.main import app
@@ -16,7 +18,7 @@ router = APIRouter(prefix="/rooms", tags=["Rooms"])
 
 
 @router.post("/create-room")
-async def create_room(room_data: Room, user: User = Depends(current_user)):
+async def create_room(room_data: Room, user: User = Depends(current_user)) -> Room:
     room = await Room.find_one(Room.host_id == user.id)
 
     if room:
@@ -37,10 +39,10 @@ async def create_room(room_data: Room, user: User = Depends(current_user)):
 
 
 @router.put("/join-room")
-async def join_room(room_data: UpdateRoom, user: User = Depends(current_user)):
+async def join_room(room_data: UpdateRoom, user: User = Depends(current_user)) -> Room:
     room = await Room.find_one(Room.code == room_data.code)
     if room:
-        if room.max_participants >= len(room.participants_ids):
+        if room.max_participants > len(room.participants_ids):
             await room.update(Push({Room.participants_ids: user.id}))
 
             await Message(
@@ -53,30 +55,33 @@ async def join_room(room_data: UpdateRoom, user: User = Depends(current_user)):
 
 
 @router.put("/leave-room")
-async def leave_room(room_data: UpdateRoom, user: User = Depends(current_user)):
+async def leave_room(room_data: UpdateRoom, user: User = Depends(current_user)) -> Room:
     room = await Room.find_one(Room.code == room_data.code)
 
     if room:
-        if room.host_id == user.id:
-            await Message.find(Message.room_id == room.id).delete()
-            await room.delete()
-            return JSONResponse(status_code=200, content={"message": "Room Deleted"})
-        else:
-            await room.update(Pull({Room.participants_ids: user.id}))
+        if ObjectId(user.id) in room.participants_ids:
+            if room.host_id == user.id:
+                await Message.find(Message.room_id == room.id).delete()
+                await room.delete()
+                return JSONResponse(
+                    status_code=200, content={"message": "Room Deleted"}
+                )
+            else:
+                await room.update(Pull({Room.participants_ids: user.id}))
 
-            await Message(
-                text=f"{user.username} left the room", room_id=room.id
-            ).insert()
+                await Message(
+                    text=f"{user.username} left the room", room_id=room.id
+                ).insert()
 
             return room
-
+        raise HTTPException(status_code=404, detail="User not in room")
     raise HTTPException(status_code=404, detail="Room does not exist")
 
 
 @router.get("/room-messages")
 async def get_room_messages(
     room_id: PydanticObjectId, user: User = Depends(current_user)
-):
+) -> List[Message]:
     messages = (
         await Message.find(Message.room_id == room_id)
         .sort("-time_sent")
@@ -90,7 +95,7 @@ async def get_room_messages(
 @router.get("/updated-room-data")
 async def get_updated_room_data(
     room_id: PydanticObjectId, user: User = Depends(current_user)
-):
+) -> dict:
     room = await Room.get(room_id)
     messages = (
         await Message.find(Message.room_id == room_id)
@@ -103,9 +108,9 @@ async def get_updated_room_data(
 
 
 @router.get("/user-in-room")
-async def check_if_user_in_room(user: User = Depends(current_user)):
+async def check_if_user_in_room(user: User = Depends(current_user)) -> Room:
     room = await Room.find(In(Room.participants_ids, [user.id])).first_or_none()
-    return room
+    return room 
 
 
 app.include_router(router)
